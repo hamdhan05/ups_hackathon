@@ -9,6 +9,7 @@ import BottleneckTable from '../components/BottleneckTable';
 import RecommendationsTable from '../components/RecommendationsTable';
 import { PeakAnalysisCard } from '../components/PeakAnalysisCard';
 import { RiskIntelligenceCard } from '../components/RiskIntelligenceCard';
+import { WhatIfSimulator } from '../components/WhatIfSimulator';
 
 interface DashboardData {
   summary: {
@@ -339,6 +340,14 @@ export default function DashboardPage() {
                 {data.p1.peakAnalysis && <PeakAnalysisCard data={data.p1.peakAnalysis} />}
               </section>
             )}
+
+            {/* ─── P2 What-If Workload Simulator ───────────────────────────── */}
+            <section className="mb-8">
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
+                P2 Interactive Simulation &amp; Natural-Language Intelligence
+              </h3>
+              <WhatIfSimulator />
+            </section>
 
             {/* ─── Bottlenecks ─────────────────────────────────────────────── */}
             <section className="mb-8">

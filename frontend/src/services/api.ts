@@ -114,6 +114,16 @@ class ApiService {
     const res = await this.client.get('/analytics');
     return res.data;
   }
+
+  async simulateScenario(params: {
+    targetArea: string;
+    workloadChangePercent: number;
+    workerTransferCount: number;
+    sourceArea: string;
+  }) {
+    const res = await this.client.post('/simulation/simulate', params);
+    return res.data;
+  }
 }
 
 export const api = new ApiService();
