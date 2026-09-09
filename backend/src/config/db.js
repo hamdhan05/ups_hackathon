@@ -34,10 +34,22 @@ mongoose.connection.on('disconnected', () => {
 });
 
 function getConnectionState() {
+  const isConn = mongoose.connection.readyState === 1;
+  if (!isConn && mongoose.connection.readyState !== 2) {
+    // Initiate background connection attempt if disconnected
+    connectDB().catch(() => {});
+  }
   return {
-    isConnected: mongoose.connection.readyState === 1,
+    isConnected: isConn,
     state: mongoose.connection.readyState,
   };
 }
+
+// Background auto-reconnect polling every 10 seconds if disconnected
+setInterval(() => {
+  if (mongoose.connection.readyState === 0) {
+    connectDB().catch(() => {});
+  }
+}, 10000);
 
 module.exports = { connectDB, getConnectionState };
