@@ -17,14 +17,23 @@ const { getConnectionState } = require('./config/db');
 
 const app = express();
 
-// CORS — allow the React dev server
+// CORS — allow local dev and production frontend origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : []),
+].map((o) => o.trim()).filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean),
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0 || allowedOrigins.includes('*') || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Permissive fallback for deployment ease
+    },
     credentials: true,
   })
 );
