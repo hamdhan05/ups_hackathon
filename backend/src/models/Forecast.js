@@ -15,9 +15,13 @@ const forecastSchema = new mongoose.Schema(
       enum: ['Receiving', 'Putaway', 'Picking', 'Packing', 'Shipping', 'Inventory'],
     },
     forecastedVolume: { type: Number, required: true, min: 0 },
-    modelName: { type: String, required: true, default: 'MovingAverage' },
+    modelName: { type: String, required: true, default: 'LinearRegression' },
     confidence: { type: Number, min: 0, max: 100 },
-    modelVersion: { type: String, default: '1.0' },
+    validationMAE: { type: Number },
+    validationMAPE: { type: Number },
+    trendDirection: { type: String, enum: ['INCREASING', 'DECREASING', 'STABLE'] },
+    trendPercentage: { type: Number },
+    modelVersion: { type: String, default: '2.0' },
   },
   { timestamps: true }
 );

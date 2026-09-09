@@ -23,10 +23,16 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [opArea, setOpArea] = useState('SDF-AIR-01');
+  const [opArea, setOpArea] = useState(selectedFacility || 'Mumbai');
   const [opType, setOpType] = useState('all');
   const [opDate, setOpDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (selectedFacility) {
+      setOpArea(selectedFacility);
+    }
+  }, [selectedFacility]);
 
   // Simulation state
   const [simTargetArea, setSimTargetArea] = useState('Shipping');
@@ -182,10 +188,14 @@ export default function Dashboard() {
                 setSelectedFacility(e.target.value);
               }}
             >
-              <option value="SDF-AIR-01">Louisville SDF Worldport Air Hub (SDF-AIR-01)</option>
-              <option value="ORD-SORT-04">Chicago ORD Regional Sort Facility (ORD-SORT-04)</option>
-              <option value="DFW-DIST-02">Dallas DFW Global Logistics Park (DFW-DIST-02)</option>
-              <option value="ATL-HUB-09">Atlanta ATL Gateway & Depots (ATL-HUB-09)</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="New Delhi">New Delhi</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Pune">Pune</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Kolkata">Kolkata</option>
             </select>
           </div>
 
@@ -550,45 +560,63 @@ export default function Dashboard() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {recommendations.map((rec) => (
-            <div
-              key={rec._id}
-              style={{
-                padding: '1.2rem',
-                backgroundColor: '#FFFDF5',
-                border: '1px solid #FFE082',
-                borderRadius: '6px',
-              }}
-            >
-              <div style={{ fontSize: '18px', fontWeight: '600', color: '#330000', marginBottom: '6px' }}>
-                Reallocate +{rec.recommendedResources} Worker(s) from {rec.sourceArea} to {rec.targetArea}
-              </div>
-              <p className="body-text" style={{ marginBottom: '1rem' }}>
-                {rec.reason}
-              </p>
-              <div style={{ display: 'flex', gap: '2rem', fontSize: '14px', color: '#555555', marginBottom: '1.2rem' }}>
-                <span>Target Area: <strong>{rec.targetArea}</strong></span>
-                <span>Priority: <strong>{rec.priority}</strong></span>
-                <span>Status: <strong>{rec.status}</strong></span>
-              </div>
+          {recommendations.map((rec) => {
+            const isAccepted = rec.status === 'ACCEPTED' || rec.status === 'COMPLETED';
 
-              {rec.status === 'ACCEPTED' || rec.status === 'COMPLETED' ? (
-                <div style={{ padding: '10px 16px', backgroundColor: '#E8F5E9', border: '1px solid #C8E6C9', color: '#2E7D32', borderRadius: '4px', fontWeight: '500', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={16} /> Recommendation Executed &amp; Reallocated
+            return (
+              <div
+                key={rec._id}
+                style={{
+                  padding: '1.2rem',
+                  backgroundColor: isAccepted ? '#FAFAFA' : '#FFFDF5',
+                  border: `1px solid ${isAccepted ? '#E0E0E0' : '#FFE082'}`,
+                  borderRadius: '6px',
+                }}
+              >
+                <div style={{ fontSize: '18px', fontWeight: '600', color: '#330000', marginBottom: '6px' }}>
+                  Reallocate +{rec.recommendedResources} Worker(s) from {rec.sourceArea} to {rec.targetArea}
                 </div>
-              ) : (
-                <button
-                  className="btn-ups-primary"
-                  onClick={async () => {
-                    await api.updateRecommendation(rec._id, 'ACCEPTED');
-                    fetchDashboardData();
-                  }}
-                >
-                  Accept Recommendation →
-                </button>
-              )}
-            </div>
-          ))}
+                <p className="body-text" style={{ marginBottom: '1rem' }}>
+                  {rec.reason}
+                </p>
+                <div style={{ display: 'flex', gap: '2rem', fontSize: '14px', color: '#555555', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+                  <span>Source Area: <strong>{rec.sourceArea}</strong></span>
+                  <span>Target Area: <strong>{rec.targetArea}</strong></span>
+                  <span>Priority: <strong>{rec.priority}</strong></span>
+                  <span>Status: <strong style={{ color: isAccepted ? '#2E7D32' : '#D97706' }}>{rec.status}</strong></span>
+                </div>
+
+                {isAccepted ? (
+                  <div style={{ padding: '10px 16px', backgroundColor: '#E8F5E9', border: '1px solid #C8E6C9', color: '#2E7D32', borderRadius: '4px', fontWeight: '500', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <CheckCircle2 size={16} /> Recommendation Executed &amp; Reallocated (+{rec.recommendedResources} Sorters)
+                  </div>
+                ) : (
+                  <button
+                    className="btn-ups-primary"
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      btn.disabled = true;
+                      btn.innerText = 'Applying Reallocation...';
+                      try {
+                        const res = await api.updateRecommendation(rec._id, 'ACCEPTED');
+                        if (res.success) {
+                          await fetchDashboardData();
+                        }
+                      } catch (err) {
+                        console.error('Dashboard accept recommendation error:', err);
+                        alert(err?.response?.data?.error?.message || 'Failed to accept recommendation');
+                      } finally {
+                        btn.disabled = false;
+                        btn.innerText = 'Accept Recommendation →';
+                      }
+                    }}
+                  >
+                    Accept Recommendation →
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

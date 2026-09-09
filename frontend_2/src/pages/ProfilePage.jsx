@@ -8,8 +8,8 @@ export default function ProfilePage() {
     name: user?.name || 'Marcus Vance',
     email: user?.email || 'm.vance@logipulse-global.com',
     title: user?.title || 'Senior Operations Manager',
-    facility: user?.facility || 'Louisville SDF Worldport Air Hub',
-    facilityCode: user?.facilityCode || 'SDF-AIR-01',
+    facility: user?.facility || 'Mumbai Operations Hub',
+    facilityCode: user?.facilityCode || 'Mumbai',
     activeShift: user?.activeShift || 'Day Peak (06:00 - 18:00)'
   });
 

@@ -9,14 +9,14 @@ const DEMO_MANAGER = {
   email: 'm.vance@logipulse-global.com',
   role: 'student', // Map manager role to primary portal view
   title: 'Senior Operations Manager',
-  facility: 'Louisville SDF Worldport Air Hub',
-  facilityCode: 'SDF-AIR-01',
+  facility: 'Mumbai Operations Hub',
+  facilityCode: 'Mumbai',
   department: 'Air Gateway & Sorting Operations',
   activeShift: 'Day Peak (06:00 - 18:00)',
-  assignedHubs: ['SDF-AIR-01', 'ORD-SORT-04', 'DFW-DIST-02'],
+  assignedHubs: ['Mumbai', 'New Delhi', 'Chennai', 'Bengaluru'],
   targetRole: 'Air Hub Sort Director',
-  resumeUrl: 'hub_capacity_manifest_sdf.pdf',
-  resumeOriginalName: 'SDF_Worldport_Capacity_Plan_2026.pdf',
+  resumeUrl: 'hub_capacity_manifest_mumbai.pdf',
+  resumeOriginalName: 'Mumbai_Capacity_Plan_2026.pdf',
   resumeAtsScore: 96,
   badges: [
     { title: 'Peak Sort Efficiency 99.2%', category: 'Throughput', icon: 'Award', unlockedAt: new Date() },
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('ch_token') || '');
   const [loading, setLoading] = useState(true);
-  const [selectedFacility, setSelectedFacility] = useState('SDF-AIR-01');
+  const [selectedFacility, setSelectedFacility] = useState('Mumbai');
 
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

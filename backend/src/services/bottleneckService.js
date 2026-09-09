@@ -40,7 +40,19 @@ async function detectBottlenecks() {
     const isShortage = cap.capacityGap < 0;
     const isOverutilized = cap.utilization > 100;
 
-    if (!isShortage && !isOverutilized) continue;
+    const existingB = await Bottleneck.findOne({ planningDate: today, operationalArea: cap.operationalArea });
+
+    if (!isShortage && !isOverutilized) {
+      if (existingB && existingB.status === 'OPEN') {
+        existingB.status = 'RESOLVED';
+        existingB.availableWorkforce = cap.availableWorkforce;
+        existingB.capacityGap = cap.capacityGap;
+        existingB.utilization = cap.utilization;
+        existingB.reason = 'Workforce deficit resolved via operational reallocation';
+        await existingB.save();
+      }
+      continue;
+    }
 
     let severity = 'LOW';
     if (cap.utilization > 130 || cap.capacityGap < -15) severity = 'CRITICAL';
@@ -65,7 +77,7 @@ async function detectBottlenecks() {
         capacityGap: cap.capacityGap,
         utilization: cap.utilization,
         severity,
-        status: 'OPEN',
+        status: existingB && existingB.status === 'RESOLVED' ? 'RESOLVED' : 'OPEN',
         reason,
       },
       { upsert: true, new: true }

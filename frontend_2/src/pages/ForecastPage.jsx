@@ -59,19 +59,19 @@ export default function ForecastPage() {
         <div className="kpi-card">
           <div className="kpi-label">7-Day Total Forecasted Volume</div>
           <div className="kpi-number">{totalForecastVolume.toLocaleString()}</div>
-          <div className="kpi-unit">expected packages (Weighted Moving Average)</div>
+          <div className="kpi-unit">expected packages (Multiple Linear Regression)</div>
         </div>
 
         <div className="kpi-card">
           <div className="kpi-label">Model Confidence Score</div>
           <div className="kpi-number">{avgConfidence}%</div>
-          <div className="kpi-unit">statistical confidence rating</div>
+          <div className="kpi-unit">derived from chronological backtesting MAPE</div>
         </div>
 
         <div className="kpi-card">
-          <div className="kpi-label">Forecast Horizon</div>
-          <div className="kpi-number">7 Days</div>
-          <div className="kpi-unit">rolling shift volume projection</div>
+          <div className="kpi-label">Forecast Model & Horizon</div>
+          <div className="kpi-number">LinearRegression</div>
+          <div className="kpi-unit">7-day OLS autoregressive rolling projection</div>
         </div>
       </div>
 
@@ -114,7 +114,6 @@ export default function ForecastPage() {
                   <th>Type</th>
                   <th>Forecasted Volume</th>
                   <th>Model Name</th>
-                  <th>Confidence</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,9 +124,6 @@ export default function ForecastPage() {
                     <td>{f.operationType}</td>
                     <td style={{ fontFamily: 'monospace', fontWeight: '600' }}>{f.forecastedVolume?.toLocaleString()}</td>
                     <td>{f.modelName}</td>
-                    <td>
-                      <span className="ups-badge badge-green">{f.confidence}% Confidence</span>
-                    </td>
                   </tr>
                 ))}
               </tbody>
