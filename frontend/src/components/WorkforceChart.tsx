@@ -8,7 +8,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceLine,
 } from 'recharts';
 
 interface CapacityItem {
@@ -25,11 +24,7 @@ interface WorkforceChartProps {
   capacity: CapacityItem[];
 }
 
-const statusColors = {
-  UNDER_CAPACITY: '#ef4444',
-  BALANCED: '#10b981',
-  OVER_CAPACITY: '#3b82f6',
-};
+
 
 export default function WorkforceChart({ capacity }: WorkforceChartProps) {
   const data = capacity.map((c) => ({

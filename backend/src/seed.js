@@ -39,15 +39,15 @@ const DEMO_PASSWORD = 'LogiPulse2026!';
 const AREA_CONFIG = {
   Receiving: {
     operationType: 'INBOUND',
-    baseWorkload: 950,
-    trend: 0.002,
+    baseWorkload: 820,
+    trend: 0.001,
     available: 15,
     cpw: 100,
   },
   Putaway: {
     operationType: 'INBOUND',
-    baseWorkload: 800,
-    trend: 0.002,
+    baseWorkload: 700,
+    trend: 0.001,
     available: 12,
     cpw: 120,
   },

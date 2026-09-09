@@ -39,57 +39,58 @@ async function getCapacity({ startDate, endDate, operationType, operationalArea,
 }
 
 /**
- * Compute capacity records from latest forecasts.
- * Called during seeding and dashboard aggregation.
+ * Compute capacity records from the nearest future forecast.
+ * Skips if today's records already exist (e.g. seeded).
+ * Uses per-area capacity-per-worker for accurate utilization.
  */
 async function computeCapacityFromForecasts() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  // Skip if today's capacity already seeded
+  const existingCount = await Capacity.countDocuments({ planningDate: today });
+  if (existingCount > 0) return [];
+
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
+  const dayAfter = new Date(today);
+  dayAfter.setDate(today.getDate() + 2);
 
-  // Get next-day forecasts
+  // Use only the nearest forecast day
   const forecasts = await Forecast.find({
-    forecastDate: { $gte: today, $lt: new Date(today.getTime() + 7 * 86400000) },
+    forecastDate: { $gte: tomorrow, $lt: dayAfter },
   }).lean();
-
-  const areaMap = {};
-  for (const f of forecasts) {
-    const key = `${f.operationalArea}||${f.operationType}`;
-    if (!areaMap[key]) {
-      areaMap[key] = { area: f.operationalArea, type: f.operationType, volumes: [], refs: [] };
-    }
-    areaMap[key].volumes.push(f.forecastedVolume);
-    areaMap[key].refs.push(f._id);
-  }
 
   const results = [];
 
-  for (const { area, type, volumes, refs } of Object.values(areaMap)) {
-    const avgVolume = Math.round(volumes.reduce((a, b) => a + b, 0) / volumes.length);
+  for (const f of forecasts) {
+    const area = f.operationalArea;
+    const type = f.operationType;
     const available = AVAILABLE_WORKFORCE[area] || 10;
-    const required = calculateRequiredWorkforce(avgVolume, area);
+    const required = calculateRequiredWorkforce(f.forecastedVolume, area);
     const gap = calculateCapacityGap(available, required);
-    const processingCapacity = available * 100;
-    const util = calculateUtilization(avgVolume, processingCapacity);
+    // Use the area's actual cpw for utilization
+    const { getCapacityPerWorker } = require('./workforceService');
+    const cpw = getCapacityPerWorker(area);
+    const processingCapacity = available * cpw;
+    const util = calculateUtilization(f.forecastedVolume, processingCapacity);
     const capStatus = getCapacityStatus(gap);
     const risk = getRiskLevel(gap, util);
 
-    // Upsert
     await Capacity.findOneAndUpdate(
       { planningDate: today, operationalArea: area, operationType: type },
       {
         planningDate: today,
         operationType: type,
         operationalArea: area,
-        forecastWorkload: avgVolume,
+        forecastWorkload: f.forecastedVolume,
         requiredWorkforce: required,
         availableWorkforce: available,
         capacityGap: gap,
         utilization: util,
         status: capStatus,
         riskLevel: risk,
-        forecastReference: refs[0],
+        forecastReference: f._id,
       },
       { upsert: true, new: true }
     );
@@ -99,5 +100,6 @@ async function computeCapacityFromForecasts() {
 
   return results;
 }
+
 
 module.exports = { getCapacity, computeCapacityFromForecasts };

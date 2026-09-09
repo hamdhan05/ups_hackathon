@@ -24,8 +24,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ email: 1 }, { unique: true });
-
 // Never return password hash
 userSchema.methods.toSafeObject = function () {
   return {
