@@ -39,6 +39,8 @@ const DEMO_ADMIN = {
   badges: []
 };
 
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('ch_token') || '');
@@ -55,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       if (!token) {
         try {
-          const res = await axios.post('http://localhost:5000/api/auth/login', {
+          const res = await axios.post(`${API_BASE}/api/auth/login`, {
             email: 'manager@logipulse.demo',
             password: 'LogiPulse2026!',
           });
@@ -76,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/me');
+        const res = await axios.get(`${API_BASE}/api/auth/me`);
         if (res.data.success) setUser(res.data.user);
       } catch {
         setUser(DEMO_MANAGER);
@@ -89,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE}/api/auth/login`, { email, password });
       if (res.data.success) {
         const jwtToken = res.data.data.token;
         const loggedUser = res.data.data.user;
