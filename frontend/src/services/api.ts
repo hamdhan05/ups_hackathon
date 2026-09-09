@@ -109,6 +109,11 @@ class ApiService {
     const res = await this.client.patch(`/recommendations/${id}`, { status });
     return res.data;
   }
+
+  async getAnalytics() {
+    const res = await this.client.get('/analytics');
+    return res.data;
+  }
 }
 
 export const api = new ApiService();

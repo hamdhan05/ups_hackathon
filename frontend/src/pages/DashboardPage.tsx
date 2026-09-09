@@ -7,6 +7,8 @@ import ForecastChart from '../components/ForecastChart';
 import WorkforceChart from '../components/WorkforceChart';
 import BottleneckTable from '../components/BottleneckTable';
 import RecommendationsTable from '../components/RecommendationsTable';
+import { PeakAnalysisCard } from '../components/PeakAnalysisCard';
+import { RiskIntelligenceCard } from '../components/RiskIntelligenceCard';
 
 interface DashboardData {
   summary: {
@@ -32,6 +34,11 @@ interface DashboardData {
   capacity: any[];
   bottlenecks: any[];
   recommendations: any[];
+  p1?: {
+    peakAnalysis?: any;
+    riskAnalysis?: any;
+    contributingFactors?: any[];
+  };
 }
 
 export default function DashboardPage() {
@@ -316,6 +323,22 @@ export default function DashboardPage() {
                 </table>
               </div>
             </section>
+
+            {/* ─── P1 Operational Intelligence ─────────────────────────────── */}
+            {data.p1 && (
+              <section className="mb-8 space-y-6">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                  P1 Operational Intelligence &amp; Risk Analytics
+                </h3>
+                {data.p1.riskAnalysis && (
+                  <RiskIntelligenceCard
+                    riskData={data.p1.riskAnalysis}
+                    contributingFactors={data.p1.contributingFactors || []}
+                  />
+                )}
+                {data.p1.peakAnalysis && <PeakAnalysisCard data={data.p1.peakAnalysis} />}
+              </section>
+            )}
 
             {/* ─── Bottlenecks ─────────────────────────────────────────────── */}
             <section className="mb-8">

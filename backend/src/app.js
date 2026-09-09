@@ -10,6 +10,7 @@ const forecastRoutes = require('./routes/forecastRoutes');
 const capacityRoutes = require('./routes/capacityRoutes');
 const bottleneckRoutes = require('./routes/bottleneckRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { getConnectionState } = require('./config/db');
 
@@ -51,6 +52,7 @@ app.use('/api/forecast', forecastRoutes);
 app.use('/api/capacity', capacityRoutes);
 app.use('/api/bottlenecks', bottleneckRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // 404 handler
 app.use((req, res) => {

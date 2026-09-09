@@ -97,7 +97,21 @@ async function getDashboard({ startDate, endDate } = {}) {
     .limit(10)
     .lean();
 
-  return { summary, trends, forecasts, capacity, bottlenecks, recommendations };
+  // P1 Intelligence
+  const analyticsService = require('./analyticsService');
+  const [peakAnalysis, riskAnalysis] = await Promise.all([
+    analyticsService.getPeakAnalysis(),
+    analyticsService.getRiskAnalysis(),
+  ]);
+  const contributingFactors = analyticsService.getContributingFactors();
+
+  const p1 = {
+    peakAnalysis,
+    riskAnalysis,
+    contributingFactors,
+  };
+
+  return { summary, trends, forecasts, capacity, bottlenecks, recommendations, p1 };
 }
 
 module.exports = { getDashboard };
