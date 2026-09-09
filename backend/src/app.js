@@ -41,6 +41,28 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 
+// Root API info (public)
+app.get('/', (req, res) => {
+  const db = getConnectionState();
+  res.json({
+    success: true,
+    name: 'LogiPulse Logistics Operations & Predictive Analytics API',
+    status: 'online',
+    database: db.isConnected ? 'connected' : 'disconnected',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/login',
+      dashboard: '/api/dashboard',
+      forecast: '/api/forecast',
+      operations: '/api/operations',
+      capacity: '/api/capacity',
+      bottlenecks: '/api/bottlenecks',
+      recommendations: '/api/recommendations',
+    },
+  });
+});
+
 // Health check (public)
 app.get('/api/health', (req, res) => {
   const db = getConnectionState();
