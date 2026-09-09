@@ -54,6 +54,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Ensure DB connection for API routes
+app.use('/api', async (req, res, next) => {
+  if (req.path === '/health') return next();
+  const db = getConnectionState();
+  if (!db.isConnected) {
+    const { connectDB } = require('./config/db');
+    await connectDB();
+  }
+  next();
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);

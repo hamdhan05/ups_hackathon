@@ -6,18 +6,27 @@ const { mongoUri } = require('./env');
 let isConnected = false;
 
 async function connectDB() {
-  if (isConnected) return;
+  if (mongoose.connection.readyState === 1) {
+    isConnected = true;
+    return;
+  }
 
   try {
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 15000,
     });
     isConnected = true;
     console.log('MongoDB connected successfully');
   } catch (err) {
+    isConnected = false;
     console.error('MongoDB connection error:', err.message);
   }
 }
+
+mongoose.connection.on('connected', () => {
+  isConnected = true;
+  console.log('MongoDB connection established');
+});
 
 mongoose.connection.on('disconnected', () => {
   isConnected = false;
@@ -26,7 +35,7 @@ mongoose.connection.on('disconnected', () => {
 
 function getConnectionState() {
   return {
-    isConnected,
+    isConnected: mongoose.connection.readyState === 1,
     state: mongoose.connection.readyState,
   };
 }

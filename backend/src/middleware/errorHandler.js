@@ -1,7 +1,14 @@
 'use strict';
 
 function errorHandler(err, req, res, next) {
-  console.error('Unhandled error:', err.message);
+  console.error('Unhandled error details:', err.stack || err);
+
+  if (err.name === 'MongooseServerSelectionError' || err.message?.includes('buffering timed out')) {
+    return res.status(503).json({
+      success: false,
+      error: { code: 'DATABASE_UNAVAILABLE', message: 'Database connection is initializing or unavailable. Please retry in a few seconds.' },
+    });
+  }
 
   if (err.name === 'ValidationError') {
     return res.status(400).json({
@@ -26,7 +33,7 @@ function errorHandler(err, req, res, next) {
 
   return res.status(500).json({
     success: false,
-    error: { code: 'INTERNAL_ERROR', message: 'An internal error occurred' },
+    error: { code: 'INTERNAL_ERROR', message: err.message || 'An internal error occurred' },
   });
 }
 
