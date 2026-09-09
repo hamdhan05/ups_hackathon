@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function RecommendationsPage() {
+  const { loading: authLoading, token } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState({});
@@ -23,8 +25,10 @@ export default function RecommendationsPage() {
   }, []);
 
   useEffect(() => {
-    fetchRecs();
-  }, [fetchRecs]);
+    if (!authLoading) {
+      fetchRecs();
+    }
+  }, [authLoading, token, fetchRecs]);
 
   const handleUpdateStatus = async (rec, newStatus) => {
     const id = rec._id;

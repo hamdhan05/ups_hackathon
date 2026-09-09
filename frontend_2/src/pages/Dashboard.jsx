@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 
 export default function Dashboard() {
-  const { selectedFacility, setSelectedFacility } = useAuth();
+  const { selectedFacility, setSelectedFacility, loading: authLoading, token } = useAuth();
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
@@ -46,7 +46,7 @@ export default function Dashboard() {
     setLoading(true);
     setError('');
     try {
-      const res = await api.getDashboard();
+      const res = await api.getDashboard({ location: opArea });
       if (res.success) {
         setData(res.data);
       }
@@ -56,7 +56,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [opArea]);
 
   const runSimulation = useCallback(async () => {
     setSimLoading(true);
@@ -78,8 +78,10 @@ export default function Dashboard() {
   }, [simTargetArea, simWorkloadChange, simWorkerTransfer, simSourceArea]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    if (!authLoading) {
+      fetchDashboardData();
+    }
+  }, [authLoading, token, fetchDashboardData]);
 
   useEffect(() => {
     runSimulation();
@@ -165,8 +167,16 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div style={{ padding: '1rem', backgroundColor: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: '6px', color: '#C53030', marginBottom: '1.5rem' }}>
-          {error}
+        <div style={{ padding: '1rem 1.25rem', backgroundColor: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: '6px', color: '#C53030', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => fetchDashboardData()}
+            className="ups-button-gold"
+            style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', whiteSpace: 'nowrap', cursor: 'pointer' }}
+          >
+            Retry Connection
+          </button>
         </div>
       )}
 

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
 export default function InventoryPage() {
+  const { loading: authLoading, token } = useAuth();
   const [inventoryOps, setInventoryOps] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,8 +20,10 @@ export default function InventoryPage() {
         setLoading(false);
       }
     }
-    fetchInventory();
-  }, []);
+    if (!authLoading) {
+      fetchInventory();
+    }
+  }, [authLoading, token]);
 
   const totalVolume = inventoryOps.reduce((acc, op) => acc + (op.workload || 0), 0);
   const avgEfficiency = inventoryOps.length

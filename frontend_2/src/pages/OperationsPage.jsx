@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
 export default function OperationsPage() {
-  const { selectedFacility } = useAuth();
+  const { selectedFacility, loading: authLoading, token } = useAuth();
   const [operations, setOperations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('');
@@ -26,8 +26,10 @@ export default function OperationsPage() {
         setLoading(false);
       }
     }
-    fetchOps();
-  }, [filterType, filterArea]);
+    if (!authLoading) {
+      fetchOps();
+    }
+  }, [authLoading, token, filterType, filterArea]);
 
   const getBadgeStyle = (status) => {
     switch (status) {

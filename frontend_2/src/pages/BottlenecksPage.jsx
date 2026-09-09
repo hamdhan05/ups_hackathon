@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
 export default function BottlenecksPage() {
+  const { loading: authLoading, token } = useAuth();
   const [bottlenecks, setBottlenecks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,8 +20,10 @@ export default function BottlenecksPage() {
         setLoading(false);
       }
     }
-    fetchBottlenecks();
-  }, []);
+    if (!authLoading) {
+      fetchBottlenecks();
+    }
+  }, [authLoading, token]);
 
   const getBadgeStyle = (severity) => {
     switch (severity) {

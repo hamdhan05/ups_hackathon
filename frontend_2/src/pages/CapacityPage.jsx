@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import {
   BarChart,
@@ -12,6 +13,7 @@ import {
 } from 'recharts';
 
 export default function CapacityPage() {
+  const { loading: authLoading, token } = useAuth();
   const [capacity, setCapacity] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +30,10 @@ export default function CapacityPage() {
         setLoading(false);
       }
     }
-    fetchCapacity();
-  }, []);
+    if (!authLoading) {
+      fetchCapacity();
+    }
+  }, [authLoading, token]);
 
   const totalRequired = capacity.reduce((acc, c) => acc + (c.requiredWorkforce || 0), 0);
   const totalAvailable = capacity.reduce((acc, c) => acc + (c.availableWorkforce || 0), 0);

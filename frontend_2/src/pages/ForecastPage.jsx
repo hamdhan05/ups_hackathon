@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import {
   LineChart,
@@ -12,6 +13,7 @@ import {
 } from 'recharts';
 
 export default function ForecastPage() {
+  const { loading: authLoading, token } = useAuth();
   const [forecasts, setForecasts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +30,10 @@ export default function ForecastPage() {
         setLoading(false);
       }
     }
-    fetchForecasts();
-  }, []);
+    if (!authLoading) {
+      fetchForecasts();
+    }
+  }, [authLoading, token]);
 
   // Format data for Recharts by date
   const chartMap = {};
