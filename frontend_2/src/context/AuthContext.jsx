@@ -54,12 +54,29 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
-        setUser(DEMO_MANAGER);
-        setLoading(false);
+        try {
+          const res = await axios.post('http://localhost:5000/api/auth/login', {
+            email: 'manager@logipulse.demo',
+            password: 'LogiPulse2026!',
+          });
+          if (res.data?.success) {
+            const jwtToken = res.data.data.token;
+            localStorage.setItem('ch_token', jwtToken);
+            setToken(jwtToken);
+            setUser(res.data.data.user);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${jwtToken}`;
+          } else {
+            setUser(DEMO_MANAGER);
+          }
+        } catch {
+          setUser(DEMO_MANAGER);
+        } finally {
+          setLoading(false);
+        }
         return;
       }
       try {
-        const res = await axios.get('/api/auth/me');
+        const res = await axios.get('http://localhost:5000/api/auth/me');
         if (res.data.success) setUser(res.data.user);
       } catch {
         setUser(DEMO_MANAGER);
@@ -72,14 +89,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       if (res.data.success) {
-        localStorage.setItem('ch_token', res.data.token);
-        setToken(res.data.token);
-        setUser(res.data.user);
-        return { success: true, role: res.data.user.role };
+        const jwtToken = res.data.data.token;
+        const loggedUser = res.data.data.user;
+        localStorage.setItem('ch_token', jwtToken);
+        setToken(jwtToken);
+        setUser(loggedUser);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${jwtToken}`;
+        return { success: true, role: loggedUser.role };
       }
-    } catch {
+    } catch (err) {
+      console.error('Login error:', err);
       const isAdmin = email.includes('admin');
       const demoUser = isAdmin ? DEMO_ADMIN : DEMO_MANAGER;
       setUser(demoUser);
